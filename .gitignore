@@ -1,0 +1,32 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Media files downloaded/generated
+course/*.mp4
+course/*.mp3
+course/*.mkv
+course/*.wav
+
+# Intermediate raw transcription files
+raw/*.txt
+
+# Output result files
+result/*.md
+
+# (Optional) If you want to totally ignore the whole content of these directories, you can also uncomment:
+# course/
+# raw/
+# result/
+
+# Python cache & pycache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
