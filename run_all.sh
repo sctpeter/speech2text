@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
 
+# 从 .env 读取 CONDA_BASE，未设置则回退到 $HOME/miniconda
+CONDA_BASE=$(grep -E '^CONDA_BASE=' .env 2>/dev/null | cut -d '=' -f 2- | sed "s/['\"]//g")
+CONDA_BASE="${CONDA_BASE:-$HOME/miniconda}"
+
+# 激活 conda 环境（与 conda initialize 块保持一致）
+__conda_setup="$("$CONDA_BASE/bin/conda" 'shell.bash' 'hook' 2>/dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "$CONDA_BASE/etc/profile.d/conda.sh" ]; then
+        . "$CONDA_BASE/etc/profile.d/conda.sh"
+    else
+        export PATH="$CONDA_BASE/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+conda activate speech2text
+
 # 提取 .env 中的项目路径，如果未设置则默认使用当前目录
 BASE_DIR=$(grep -E '^BASE_DIR=' .env 2>/dev/null | cut -d '=' -f 2- | sed "s/['\"]//g")
 WORK_DIR="${BASE_DIR:-$PWD}"
