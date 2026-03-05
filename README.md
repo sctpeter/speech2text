@@ -42,6 +42,16 @@ pip install faster-whisper opencc openai tiktoken python-dotenv
    ```
 2. 编辑 `.env` 文件，填入你的配置信息：
    - **`DEEPSEEK_API_KEY`**: 你的 API 密钥（可以在 [DeepSeek 开放平台](https://platform.deepseek.com/) 获取）。
+   - **`CONDA_BASE`**: **(必填)** Conda 的安装根目录。不同用户/系统路径不同，脚本依赖此项来激活 `speech2text` 虚拟环境。常见路径示例：
+     ```
+     # Linux/WSL 普通用户
+     CONDA_BASE="/home/<username>/miniconda3"
+     # Linux root 用户
+     CONDA_BASE="/root/miniconda"
+     # macOS (Homebrew)
+     CONDA_BASE="/opt/homebrew/anaconda3"
+     ```
+     若不填，脚本将回退到 `$HOME/miniconda`。
    - **`BASE_DIR`**: (可选) 项目所在绝对路径（例如 `/mnt/c/...`）。若不填写，将默认使用当前运行目录。
    - **`CPU_THREADS`**: (可选) 使用 CPU 进行语音识别时的线程数（默认 7）。如设备负载较高，可适当调低。
 
