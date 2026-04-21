@@ -42,7 +42,8 @@ def count_tokens(text: str) -> int:
 # 设置安全的最大单次输入 token数（因为要留出空间给输出）
 # DeepSeek deepseek-chat 的最大单次上下文虽为 128k，但单次最大输出默认最大只有8192
 # 为使输入和输出1:1，且输出不被截断，我们规定每次喂给模型的输入大约不超过 7000 tokens
-MAX_INPUT_TOKENS = 7000 
+#由于目前修改功能，需要大模型补充自己对课程内容的理解，因此进一步减少输入token数
+MAX_INPUT_TOKENS = 4050
 system_prompt_tokens = count_tokens(SYSTEM_PROMPT)
 
 def chunk_text(text: str, max_tokens: int) -> list:

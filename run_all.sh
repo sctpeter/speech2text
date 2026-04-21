@@ -61,7 +61,8 @@ echo "[INFO] 提取完成，目标下载文件名为: $filename"
 echo "==========================================================="
 echo "                  [阶段 1/3] aria2c 下载"
 # 使用 -d 参数指定文件保存在 course 文件夹下，-o 指定重命名的文件名
-aria2c -x 8 -s 8 -c -d "$COURSE_DIR" -o "$filename" "$url"
+referer=$(echo "$url" | grep -oE 'https?://[^/]+/')
+aria2c --referer="$referer" -x 8 -s 8 -c -d "$COURSE_DIR" -o "$filename" "$url"
 
 echo "==========================================================="
 echo "                  [阶段 2/3] 本地转录提取 (run_course.sh)"
