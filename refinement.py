@@ -11,6 +11,8 @@ api_key = os.getenv("DEEPSEEK_API_KEY")
 if not api_key:
     raise ValueError("未在 .env 中找到 DEEPSEEK_API_KEY")
 
+DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash")
+
 # 初始化 OpenAI 客户端，指向 DeepSeek base url
 client = OpenAI(
     api_key=api_key,
@@ -39,11 +41,11 @@ encoding = tiktoken.get_encoding("cl100k_base")
 def count_tokens(text: str) -> int:
     return len(encoding.encode(text))
 
-# 设置安全的最大单次输入 token数（因为要留出空间给输出）
-# DeepSeek deepseek-chat 的最大单次上下文虽为 128k，但单次最大输出默认最大只有8192
-# 为使输入和输出1:1，且输出不被截断，我们规定每次喂给模型的输入大约不超过 7000 tokens
-#由于目前修改功能，需要大模型补充自己对课程内容的理解，因此进一步减少输入token数
-MAX_INPUT_TOKENS = 4050
+# 设置安全的最大单次输入 token 数
+# deepseek-v4-flash 上下文 1M，最大单次输出 384K，不再有 128k/8192 的旧限制
+# 输入设为 32000 tokens（含 system prompt），输出上限同步放大到 32768
+# 与旧版 4050 相比约扩大 8 倍，3 小时课程通常只需 2~3 个分块
+MAX_INPUT_TOKENS = 32000
 system_prompt_tokens = count_tokens(SYSTEM_PROMPT)
 
 def chunk_text(text: str, max_tokens: int) -> list:
@@ -122,10 +124,10 @@ def process_file(file_path: Path):
         
         try:
             response = client.chat.completions.create(
-                model="deepseek-chat",
+                model=DEEPSEEK_MODEL,
                 messages=messages,
                 stream=True,     # 关键配置：流式输出
-                max_tokens=8192, # deepseek最大单次输出
+                max_tokens=32768, # deepseek-v4-flash 最大单次输出 384K，此处取保守值
                 temperature=1.0  # 注：官方建议数据抽取/分析为1.0
             )
             

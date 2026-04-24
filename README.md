@@ -53,6 +53,7 @@ pip install faster-whisper opencc openai tiktoken python-dotenv
      ```
      若不填，脚本将回退到 `$HOME/miniconda`。
    - **`BASE_DIR`**: (可选) 项目所在绝对路径（例如 `/mnt/c/...`）。若不填写，将默认使用当前运行目录。
+   - **`DEEPSEEK_MODEL`**: (可选) 调用的 DeepSeek 模型名称（默认 `deepseek-v4-flash`）。如需更高质量，可改为 `deepseek-v4-pro`。注意：旧模型名 `deepseek-chat` / `deepseek-reasoner` 将于 2026-07-24 停用。
    - **`CPU_THREADS`**: (可选) 使用 CPU 进行语音识别时的线程数（默认 7）。如设备负载较高，可适当调低。
 
 ---
@@ -77,7 +78,7 @@ bash run_all.sh
 1. 终端提示输入下载链接与课程名称。
 2. 从链接解析日期（若无则使用当天日期），生成如 `马原_20260305.mp4` 的文件名并使用 `aria2` 下载。
 3. 触发本地模型进行语音识别生成基础文本。
-4. 文本自动分块（每块 < 7000 tokens）并流式请求大模型。
+4. 文本自动分块（每块 < 32000 tokens）并流式请求大模型。
 5. 网络问题需用户自行处理。
 
 最终结果在 `result/` 目录中生成 `.md` 文件。
@@ -115,7 +116,8 @@ bash delete.sh
 ## 进阶调整
 
 - **自定义 Prompt**：可编辑项目根目录的 `prompt.md`，调整输出语气与排版要求。
-- **自定义模型规模**：可在 `transcribe.py` 中修改 `model_size="medium"`，以换取更高精度但更慢的 `large-v3` 模型（需要更多内存）。
+- **自定义 DeepSeek 模型**：可在 `.env` 中修改 `DEEPSEEK_MODEL`，例如切换为 `deepseek-v4-pro`（质量更高但费用更贵）。旧模型名 `deepseek-chat` / `deepseek-reasoner` 将于 2026-07-24 停用。
+- **自定义语音识别模型规模**：可在 `transcribe.py` 中修改 `model_size="medium"`，以换取更高精度但更慢的 `large-v3` 模型（需要更多内存）。
 
 ## 效果
 
