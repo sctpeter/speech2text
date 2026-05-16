@@ -8,6 +8,7 @@ course/*.mp4
 course/*.mp3
 course/*.mkv
 course/*.wav
+course/
 
 # Intermediate raw transcription files
 raw/*.txt
