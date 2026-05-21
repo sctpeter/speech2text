@@ -51,7 +51,6 @@ start_time = time.time()
 
 segments, info = model.transcribe(
     audio_path,
-    language="zh",
     beam_size=1,
     vad_filter=True,
     vad_parameters=dict(
@@ -73,10 +72,11 @@ if output_path:
     outfile.write(f"# 音频时长: {info.duration:.1f}s ({info.duration/60:.1f}min)\n\n")
 
 lines = []
+is_chinese = info.language in ("zh", "yue")
 for seg in segments:
-    text_cn = cc.convert(seg.text)  # 转换为简体
-    console_line = f"[{seg.start:.1f}s -> {seg.end:.1f}s] {text_cn}"
-    file_line = text_cn
+    text_out = cc.convert(seg.text) if is_chinese else seg.text
+    console_line = f"[{seg.start:.1f}s -> {seg.end:.1f}s] {text_out}"
+    file_line = text_out
     print(console_line)
     lines.append(file_line)
     if outfile:
