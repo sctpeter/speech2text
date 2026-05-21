@@ -15,8 +15,8 @@ declare -a to_delete_course
 declare -a to_delete_raw
 declare -a to_delete_result
 
-# 遍历 course 目录中的 mp4 和 mp3 文件
-for course_file in "$COURSE_DIR"/*.mp4 "$COURSE_DIR"/*.mp3; do
+# 遍历 course 目录中的 mp4, mp3, m4a 文件
+for course_file in "$COURSE_DIR"/*.mp4 "$COURSE_DIR"/*.mp3 "$COURSE_DIR"/*.m4a; do
     [ -e "$course_file" ] || continue
     
     # 获取文件名和去除后缀的基础名(stem)

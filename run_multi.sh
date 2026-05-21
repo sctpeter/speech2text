@@ -61,7 +61,15 @@ while true; do
         course_date=$(date +%Y%m%d)
     fi
 
-    filename="${course_name}_${course_date}.mp4"
+    # 从 URL 中提取扩展名 (剥离查询串)，仅接受 mp4/mp3/m4a，否则回退 mp4
+    url_path="${url%%\?*}"
+    url_ext="${url_path##*.}"
+    case "$url_ext" in
+        mp4|mp3|m4a) ext="$url_ext" ;;
+        *) ext="mp4" ;;
+    esac
+
+    filename="${course_name}_${course_date}.${ext}"
     URLS+=("$url")
     FILENAMES+=("$filename")
     echo "[已加入] $filename"

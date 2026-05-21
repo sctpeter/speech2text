@@ -41,8 +41,8 @@ fi
 
 echo "开始扫描视频..."
 
-# 遍历 course 文件夹下的音视频文件 (支持 mp4, mp3)
-for input_file in "$COURSE_DIR"/*.mp4 "$COURSE_DIR"/*.mp3; do
+# 遍历 course 文件夹下的音视频文件 (支持 mp4, mp3, m4a)
+for input_file in "$COURSE_DIR"/*.mp4 "$COURSE_DIR"/*.mp3 "$COURSE_DIR"/*.m4a; do
     # 判断文件是否存在 (防止通配符部分匹配失败返回字面量)
     [ -e "$input_file" ] || continue
     
