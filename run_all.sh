@@ -54,7 +54,15 @@ if [ -z "$course_date" ]; then
     course_date=$(date +%Y%m%d)
 fi
 
-filename="${course_name}_${course_date}.mp4"
+# 从 URL 中提取扩展名 (剥离查询串)，仅接受 mp4/mp3/m4a，否则回退 mp4
+url_path="${url%%\?*}"
+url_ext="${url_path##*.}"
+case "$url_ext" in
+    mp4|mp3|m4a) ext="$url_ext" ;;
+    *) ext="mp4" ;;
+esac
+
+filename="${course_name}_${course_date}.${ext}"
 echo "[INFO] 提取完成，目标下载文件名为: $filename"
 
 # 3. 依次执行流水线（不做重试，网络问题由用户自行处理）
