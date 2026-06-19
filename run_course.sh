@@ -41,7 +41,17 @@ fi
 
 echo "开始扫描视频..."
 
-# 遍历 course 文件夹下的音视频文件 (支持 mp4, mp3, m4a)
+TRANSCRIBE_PROCESSES=$(grep -E '^TRANSCRIBE_PROCESSES=' .env 2>/dev/null | cut -d '=' -f 2- | sed "s/['\"]//g")
+TRANSCRIBE_PROCESSES="${TRANSCRIBE_PROCESSES:-1}"
+if ! [[ "$TRANSCRIBE_PROCESSES" =~ ^[1-9][0-9]*$ ]]; then
+    echo "[警告] TRANSCRIBE_PROCESSES 配置无效: $TRANSCRIBE_PROCESSES，已回退为 1。"
+    TRANSCRIBE_PROCESSES=1
+fi
+
+declare -a PENDING_INPUTS
+declare -a PENDING_OUTPUTS
+
+# 遍历 course 文件夹下的音视频文件 (支持 mp4, mp3, m4a)，只收集尚未生成 txt 的文件
 for input_file in "$COURSE_DIR"/*.mp4 "$COURSE_DIR"/*.mp3 "$COURSE_DIR"/*.m4a; do
     # 判断文件是否存在 (防止通配符部分匹配失败返回字面量)
     [ -e "$input_file" ] || continue
@@ -58,14 +68,54 @@ for input_file in "$COURSE_DIR"/*.mp4 "$COURSE_DIR"/*.mp3 "$COURSE_DIR"/*.m4a; d
         echo "[INFO] [跳过] 转录结果已存在: $output_file"
         continue
     fi
-    
+
+    PENDING_INPUTS+=("$input_file")
+    PENDING_OUTPUTS+=("$output_file")
+done
+
+total=${#PENDING_INPUTS[@]}
+if [ "$total" -eq 0 ]; then
+    echo "没有需要转录的视频。"
+    echo "扫描和处理完成！"
+    exit 0
+fi
+
+echo "[INFO] 发现 $total 个待转录文件。"
+echo "[INFO] 并发转录进程数: $TRANSCRIBE_PROCESSES"
+
+running=0
+failed=0
+for i in "${!PENDING_INPUTS[@]}"; do
+    input_file="${PENDING_INPUTS[$i]}"
+    output_file="${PENDING_OUTPUTS[$i]}"
+    filename=$(basename -- "$input_file")
+
     echo "==========================================="
-    echo "[INFO] 正在处理视频: $filename"
+    echo "[INFO] 启动转录 $((i + 1))/$total: $filename"
     echo "[INFO] 输入: $input_file"
     echo "[INFO] 输出: $output_file"
-    
-    # 运行转录脚本
-    python transcribe.py "$input_file" "$output_file"
+
+    python transcribe.py "$input_file" "$output_file" &
+    running=$((running + 1))
+
+    if [ "$running" -ge "$TRANSCRIBE_PROCESSES" ]; then
+        if ! wait -n; then
+            failed=1
+        fi
+        running=$((running - 1))
+    fi
 done
+
+while [ "$running" -gt 0 ]; do
+    if ! wait -n; then
+        failed=1
+    fi
+    running=$((running - 1))
+done
+
+if [ "$failed" -ne 0 ]; then
+    echo "[错误] 至少有一个转录进程失败。"
+    exit 1
+fi
 
 echo "扫描和处理完成！"

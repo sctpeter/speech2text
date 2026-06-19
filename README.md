@@ -55,6 +55,7 @@ pip install faster-whisper opencc openai tiktoken python-dotenv
    - **`BASE_DIR`**: (可选) 项目所在绝对路径（例如 `/mnt/c/...`）。若不填写，将默认使用当前运行目录。
    - **`DEEPSEEK_MODEL`**: (可选) 调用的 DeepSeek 模型名称（默认 `deepseek-v4-flash`）。如需更高质量，可改为 `deepseek-v4-pro`。注意：旧模型名 `deepseek-chat` / `deepseek-reasoner` 将于 2026-07-24 停用。
    - **`CPU_THREADS`**: (可选) 使用 CPU 进行语音识别时的线程数（默认 7）。如设备负载较高，可适当调低。
+   - **`TRANSCRIBE_PROCESSES`**: (可选) 批量转录时同时运行的转录进程数（默认 1）。例如设为 `2` 时，`run_course.sh` 会同时处理最多 2 个尚未生成 `.txt` 的音视频文件。总 CPU 占用大致为 `TRANSCRIBE_PROCESSES × CPU_THREADS`。
 
 ---
 
@@ -132,6 +133,7 @@ bash delete.sh
 - **自定义 Prompt**：可编辑项目根目录的 `prompt.md`，调整输出语气与排版要求。
 - **自定义 DeepSeek 模型**：可在 `.env` 中修改 `DEEPSEEK_MODEL`，例如切换为 `deepseek-v4-pro`（质量更高但费用更贵）。旧模型名 `deepseek-chat` / `deepseek-reasoner` 将于 2026-07-24 停用。
 - **自定义语音识别模型规模**：可在 `transcribe.py` 中修改 `model_size="medium"`，以换取更高精度但更慢的 `large-v3` 模型（需要更多内存）。
+- **批量转录并发数**：可在 `.env` 中设置 `TRANSCRIBE_PROCESSES=2` 或更高，让 `run_course.sh` 同时转录多个尚未生成结果的音视频文件。建议同步调低 `CPU_THREADS`，避免 `TRANSCRIBE_PROCESSES × CPU_THREADS` 超过机器可承受范围。
 
 ## 效果
 
